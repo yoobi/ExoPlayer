@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -51,6 +52,7 @@ public final class TrackSelectionDialogBuilder {
   }
 
   private final Context context;
+  @StyleRes private int themeResId;
   private final CharSequence title;
   private final MappedTrackInfo mappedTrackInfo;
   private final int rendererIndex;
@@ -122,6 +124,11 @@ public final class TrackSelectionDialogBuilder {
                     rendererTrackGroups,
                     newIsDisabled,
                     newOverrides.isEmpty() ? null : newOverrides.get(0)));
+  }
+
+  public TrackSelectionDialogBuilder setTheme(int themeResId) {
+    this.themeResId = themeResId;
+    return this;
   }
 
   /**
@@ -223,7 +230,7 @@ public final class TrackSelectionDialogBuilder {
   }
 
   private Dialog buildForPlatform() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    AlertDialog.Builder builder = new AlertDialog.Builder(context, themeResId);
 
     // Inflate with the builder's context to ensure the correct style is used.
     LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
@@ -247,8 +254,8 @@ public final class TrackSelectionDialogBuilder {
       // the APK size even with shrinking. See https://issuetracker.google.com/161514204.
       // LINT.IfChange
       Class<?> builderClazz = Class.forName("androidx.appcompat.app.AlertDialog$Builder");
-      Constructor<?> builderConstructor = builderClazz.getConstructor(Context.class);
-      Object builder = builderConstructor.newInstance(context);
+      Constructor<?> builderConstructor = builderClazz.getConstructor(Context.class, int.class);
+      Object builder = builderConstructor.newInstance(context, themeResId);
 
       // Inflate with the builder's context to ensure the correct style is used.
       Context builderContext = (Context) builderClazz.getMethod("getContext").invoke(builder);
